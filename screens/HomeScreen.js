@@ -1,5 +1,5 @@
 import React from "react";
-import { Text,SafeAreaView } from "react-native";
+import { Text,SafeAreaView, TouchableOpacity, Animated, Easing, StatusBar } from "react-native";
 import styled from "styled-components";
 import Card from "../components/Card";
 import { Ionicons } from '@expo/vector-icons'
@@ -8,17 +8,86 @@ import {NotificationIcon} from "../components/Icons";
 import Logo from "../components/Logo";
 import Course from "../components/Course";
 import Menu from "../components/Menu";
+import {connect} from "react-redux";
+
+function mapStateToProps(state) {
+    return { action: state.action };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        openMenu: () =>
+            dispatch({
+                type: "OPEN_MENU"
+            })
+    };
+}
 
 
-export default class HomeScreen extends React.Component {
+class HomeScreen extends React.Component {
+
+    state = {
+        scale: new Animated.Value(1),
+        opacity: new Animated.Value(1)
+
+    }
+
+    componentDidMount() {
+        StatusBar.setBarStyle("dark-content",true)
+    }
+
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.toggleMenu()
+    }
+
+
+    toggleMenu = () =>{
+        if(this.props.action=='openMenu'){
+            Animated.spring(this.state.scale,{
+                toValue: 0.88,
+                duration:300,
+                easing: Easing.in()
+            }).start()
+            Animated.spring(this.state.opacity,{
+                toValue: 0.5
+            }).start()
+
+            StatusBar.setBarStyle("light-content",true)
+        }
+
+        if (this.props.action == 'closeMenu'){
+            Animated.spring(this.state.scale,{
+                toValue: 1,
+                duration:300,
+                easing: Easing.in()
+            }).start()
+            Animated.spring(this.state.opacity,{
+                toValue: 1
+            }).start()
+
+            StatusBar.setBarStyle("dark-content",true)
+        }
+    }
+
+
     render() {
         return (
-            <Container>
+            <RootView>
                 <Menu />
+            <AnimatedContainer style={{ transform: [{scale: this.state.scale}], opacity: this.state.opacity}}>
+
             <SafeAreaView>
                 <ScrollView showsVerticalScrollIndicator={false}>
                 <TitleBar>
-                    <Avatar source={require("../assets/avatar.jpg")} />
+                    <TouchableOpacity onPress={this.props.openMenu} style={
+                        {
+                            position:"absolute", top: 0, left:20
+                        }
+                    }>
+                        <Avatar source={require("../assets/avatar.jpg")} />
+                    </TouchableOpacity>
+
                     <Title>Welcome back,</Title>
                     <Name>Meng</Name>
                     <NotificationIcon style={{ position: "absolute", right:20, top:5}}/>
@@ -62,15 +131,26 @@ export default class HomeScreen extends React.Component {
                     </ScrollView>
                 </ScrollView>
             </SafeAreaView>
-            </Container>
+            </AnimatedContainer>
+            </RootView>
         );
     }
 }
 
+export default connect(mapStateToProps,mapDispatchToProps)(HomeScreen)
+
+const RootView = styled.View`
+  background: black;
+  flex: 1;
+`;
+
 const Container = styled.View`
   background: #f0f3f5;
   flex: 1;
+  border-radius: 10px;
 `;
+
+const AnimatedContainer = Animated.createAnimatedComponent(Container)
 
 const TitleBar = styled.View`
   width: 100%;
@@ -95,10 +175,6 @@ const Avatar = styled.Image`
   height: 44px;
   background: black;
   border-radius: 22px;
-  margin-left: 20px;
-  position: absolute;
-  top: 0;
-  left: 0;
 `;
 
 const Subtitle = styled.Text`

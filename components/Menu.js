@@ -3,6 +3,20 @@ import styled from "styled-components";
 import { Animated,TouchableOpacity, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import MenuItem from "./MenuItem";
+import {connect} from "react-redux";
+
+function mapStateToProps(state){
+    return { action: state.action}
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        closeMenu: () =>
+            dispatch({
+                type: "CLOSE_MENU"
+            })
+    };
+}
 
 const screenHeight = Dimensions.get("window").height
 
@@ -12,15 +26,25 @@ class Menu extends React.Component {
     };
 
     componentDidMount() {
-        Animated.spring(this.state.top, {
-            toValue: 0
-        }).start();
+        this.toggleMenu();
     }
 
-    toggleMenu = () => {
-        Animated.spring(this.state.top, {
-            toValue: screenHeight
-        }).start();
+    componentDidUpdate() {
+        this.toggleMenu();
+    }
+
+    toggleMenu=()=>{
+        if (this.props.action == "openMenu"){
+            Animated.spring(this.state.top,{
+                toValue: 80
+            }).start();
+        }
+
+        if(this.props.action == "closeMenu"){
+            Animated.spring(this.state.top,{
+                toValue: screenHeight
+            }).start();
+        }
     }
 
     render() {
@@ -31,7 +55,7 @@ class Menu extends React.Component {
                     <Title>Meng To</Title>
                     <Subtitle>meng@designcode.io</Subtitle>
                 </Cover>
-                <TouchableOpacity onPress={this.toggleMenu}
+                <TouchableOpacity onPress={this.props.closeMenu}
                                   style={{
                                       position: "absolute",
                                       top: 120,
@@ -59,7 +83,7 @@ class Menu extends React.Component {
     }
 }
 
-export default Menu;
+export default connect(mapStateToProps,mapDispatchToProps)(Menu);
 
 const CloseView = styled.View`
   width: 44px;
@@ -77,6 +101,8 @@ const Container = styled.View`
   width: 100%;
   height: 100%;
   z-index: 100;
+  border-radius: 10px;
+  overflow: hidden;
 `
 
 const AnimatedContainer = Animated.createAnimatedComponent(Container);
