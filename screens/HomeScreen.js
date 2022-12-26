@@ -9,9 +9,10 @@ import Logo from "../components/Logo";
 import Course from "../components/Course";
 import Menu from "../components/Menu";
 import {connect} from "react-redux";
+import Avatar from "../components/Avatar";
 
 function mapStateToProps(state) {
-    return { action: state.action };
+    return { action: state.action , name:state.name};
 }
 
 function mapDispatchToProps(dispatch) {
@@ -85,11 +86,11 @@ class HomeScreen extends React.Component {
                             position:"absolute", top: 0, left:20
                         }
                     }>
-                        <Avatar source={require("../assets/avatar.jpg")} />
+                        <Avatar />
                     </TouchableOpacity>
 
                     <Title>Welcome back,</Title>
-                    <Name>Meng</Name>
+                    <Name>{this.props.name}</Name>
                     <NotificationIcon style={{ position: "absolute", right:20, top:5}}/>
                 </TitleBar>
                     <ScrollView
@@ -170,12 +171,7 @@ const Name = styled.Text`
   font-weight: bold;
 `;
 
-const Avatar = styled.Image`
-  width: 44px;
-  height: 44px;
-  background: black;
-  border-radius: 22px;
-`;
+
 
 const Subtitle = styled.Text`
   color: #b8bece;
